@@ -1,0 +1,79 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>ROBO</title>
+</head>
+
+<body>
+    <h1 style="text-align:center;color:darkorchid">ROBO CET</h1>
+    <p id="res"></p>
+    <script>
+        var req;
+        var data = {
+            d: 'N',
+            old:'N'
+        };
+        if (window.DeviceOrientationEvent == undefined) {
+            //No accelerometer is present. Use buttons. 
+            console.log("no accelerometer");
+
+        } else {
+            console.log("accelerometer found");
+            // console.log(window.DeviceMotionEvent);
+            window.addEventListener("deviceorientation", accelerometerUpdate, true);
+        }
+
+        function accelerometerUpdate(e) {
+            var large = Math.abs(e.gamma) >= Math.abs(e.beta) ? e.gamma : e.beta;
+            switch (large) {
+            case 0:
+                data.d = 'N'
+                break;
+            case e.beta:
+                if (Math.abs(e.beta) > 10) {
+                    if (large > 0)
+                        data.d = 'B';
+                    else
+                        data.d = 'F';
+                } else {
+                    data.d = 'N'
+                }
+                break;
+            case e.gamma:
+                if (Math.abs(e.gamma) > 10) {
+                    if (large > 0)
+                        data.d = 'R'
+                    else
+                        data.d = 'L'
+
+                } else {
+                    data.d = 'N'
+                }
+                break;
+            }
+            document.getElementById('res').innerHTML = 'alpha = ' + e.alpha + "    beta = " + e.beta + "    gamma = " +
+                e.gamma + '<h1 style ="font-size : 100px ;color:red;text-align:center">' + data.d + '</h1>';
+            if(data.d != data.old){
+                data.old = data.d;
+                makeRequest();
+            }
+            
+
+        }
+        function makeRequest() {
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function () {
+                var DONE = this.DONE || 4;
+                if (this.readyState === DONE) {
+                    //alert(this.readyState);
+                }
+            };
+            request.open('POST', '', true);
+            request.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // Tells server that this call is made for ajax purposes.
+            // Most libraries like jQuery/Prototype/Dojo do this
+            request.send("data="+data.d); // No data needs to be sent along with the request.
+        }
+    </script>
+</body>
+
+</html>
